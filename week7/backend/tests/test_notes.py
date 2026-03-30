@@ -1,9 +1,11 @@
 def test_create_list_and_patch_notes(client):
-    payload = {"title": "Test", "content": "Hello world"}
+    payload = {"title": "Test", "content": "Hello world", "category": "work", "is_archived": False}
     r = client.post("/notes/", json=payload)
     assert r.status_code == 201, r.text
     data = r.json()
     assert data["title"] == "Test"
+    assert data["category"] == "work"
+    assert data["is_archived"] == False
     assert "created_at" in data and "updated_at" in data
 
     r = client.get("/notes/")
@@ -17,9 +19,11 @@ def test_create_list_and_patch_notes(client):
     assert len(items) >= 1
 
     note_id = data["id"]
-    r = client.patch(f"/notes/{note_id}", json={"title": "Updated"})
+    r = client.patch(f"/notes/{note_id}", json={"title": "Updated", "category": "personal", "is_archived": True})
     assert r.status_code == 200
     patched = r.json()
     assert patched["title"] == "Updated"
+    assert patched["category"] == "personal"
+    assert patched["is_archived"] == True
 
 

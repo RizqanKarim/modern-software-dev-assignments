@@ -19,6 +19,8 @@ class Note(Base, TimestampMixin):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(200), nullable=False)
     content = Column(Text, nullable=False)
+    category = Column(String(100), nullable=True)
+    is_archived = Column(Boolean, default=False, nullable=False)
 
 
 class ActionItem(Base, TimestampMixin):
