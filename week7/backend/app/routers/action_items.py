@@ -1,12 +1,24 @@
-from typing import Optional
+from typing import Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
 from sqlalchemy import asc, desc, select
 from sqlalchemy.orm import Session
 
 from ..db import get_db
 from ..models import ActionItem
 from ..schemas import ActionItemCreate, ActionItemPatch, ActionItemRead
+from ..services.extract import extract_action_items
+
+
+class ExtractRequest(BaseModel):
+    text: str
+
+
+class ExtractResponse(BaseModel):
+    action_items: List[str]
+    tags: List[str]
+    error: Optional[str] = None
 
 router = APIRouter(prefix="/action-items", tags=["action_items"])
 
@@ -68,5 +80,15 @@ def patch_item(item_id: int, payload: ActionItemPatch, db: Session = Depends(get
     db.flush()
     db.refresh(item)
     return ActionItemRead.model_validate(item)
+
+
+@router.post("/extract", response_model=ExtractResponse)
+def extract_from_text(payload: ExtractRequest) -> ExtractResponse:
+    """
+    Extract action items and tags from text using enhanced pattern recognition.
+    Supports Markdown format, checkboxes, headers, and metadata extraction.
+    """
+    result = extract_action_items(payload.text)
+    return ExtractResponse(**result)
 
 

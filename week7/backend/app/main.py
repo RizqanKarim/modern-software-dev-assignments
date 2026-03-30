@@ -15,7 +15,7 @@ app = FastAPI(title="Modern Software Dev Starter (Week 6)", version="0.1.0")
 Path("data").mkdir(parents=True, exist_ok=True)
 
 # Mount static frontend
-app.mount("/static", StaticFiles(directory="frontend"), name="static")
+app.mount("/static", StaticFiles(directory="../frontend"), name="static")
 
 
 # Compatibility with FastAPI lifespan events; keep on_event for simplicity here
@@ -27,7 +27,7 @@ def startup_event() -> None:
 
 @app.get("/")
 async def root() -> FileResponse:
-    return FileResponse("frontend/index.html")
+    return FileResponse("../frontend/index.html")
 
 
 # Routers
