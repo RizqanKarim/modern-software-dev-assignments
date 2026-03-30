@@ -25,3 +25,21 @@ These steps work with Python 3.12.
    ```bash
    poetry install --no-interaction
    ```
+
+   ## New: AI Extraction Feature
+
+   This app now supports extracting action items from notes using **AI LLMs** (Large Language Models)!
+   
+   - **Heuristic Extraction**: The original rule-based extraction remains available.
+   - **AI LLM Extraction (Llama 3 via Ollama)**: You can leverage an AI model to extract action items, often with higher accuracy and flexibility for natural language inputs.
+
+   In the web UI, try both “Extract (Heuristic)” and “Extract (AI LLM)” to compare approaches.
+
+   ### API Endpoints
+
+   - `POST /action-items/extract`
+     - Extract action items from the given text (heuristic rules).
+   - `POST /action-items/extract-llm`
+     - Extract action items using the Llama 3 model via Ollama backend.
+
+   Be sure that you have [Ollama](https://ollama.com/) installed and running with the appropriate model (`llama3`) for LLM extraction to work.

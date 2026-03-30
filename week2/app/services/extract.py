@@ -87,3 +87,41 @@ def _looks_imperative(sentence: str) -> bool:
         "investigate",
     }
     return first.lower() in imperative_starters
+    def extract_action_items_llm(text: str) -> list[str]:
+        """
+        Extracts action items from the given text using Llama3 via ollama.
+
+        Args:
+            text (str): The input text to analyze.
+
+        Returns:
+            List[str]: List of extracted action items.
+        """
+        import ollama
+
+        prompt = (
+            "Extract all action items from the following text. "
+            "Return ONLY a JSON array of strings, each string an action item. "
+            f"Text: '''{text}'''"
+        )
+
+        response = ollama.chat(
+            model="llama3",
+            messages=[{"role": "user", "content": prompt}],
+            format="json"
+        )
+
+        # Ollama chat returns: {'message': ..., ...}
+        # The content should be a JSON array string; parse it.
+        import json
+
+        content = response["message"]["content"]
+
+        try:
+            items = json.loads(content)
+            if not isinstance(items, list):
+                return []
+            # Ensure all are strings
+            return [str(item) for item in items]
+        except Exception:
+            return []

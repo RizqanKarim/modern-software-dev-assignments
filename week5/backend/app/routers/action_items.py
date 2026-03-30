@@ -1,18 +1,29 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from ..db import get_db
 from ..models import ActionItem
-from ..schemas import ActionItemCreate, ActionItemRead
+from ..schemas import ActionItemCreate, ActionItemRead, ActionItemsPage
 
 router = APIRouter(prefix="/action-items", tags=["action_items"])
 
 
-@router.get("/", response_model=list[ActionItemRead])
-def list_items(db: Session = Depends(get_db)) -> list[ActionItemRead]:
-    rows = db.execute(select(ActionItem)).scalars().all()
-    return [ActionItemRead.model_validate(row) for row in rows]
+@router.get("/", response_model=ActionItemsPage)
+def list_items(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(10, ge=1, le=100),
+    db: Session = Depends(get_db),
+) -> ActionItemsPage:
+    total = db.execute(select(func.count()).select_from(ActionItem)).scalar_one()
+    offset = (page - 1) * page_size
+    rows = db.execute(select(ActionItem).offset(offset).limit(page_size)).scalars().all()
+    return ActionItemsPage(
+        items=[ActionItemRead.model_validate(row) for row in rows],
+        total=total,
+        page=page,
+        page_size=page_size,
+    )
 
 
 @router.post("/", response_model=ActionItemRead, status_code=201)

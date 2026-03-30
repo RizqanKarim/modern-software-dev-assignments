@@ -15,6 +15,13 @@ class NoteRead(BaseModel):
         from_attributes = True
 
 
+class NotesPage(BaseModel):
+    items: list[NoteRead]
+    total: int
+    page: int
+    page_size: int
+
+
 class ActionItemCreate(BaseModel):
     description: str
 
@@ -26,3 +33,10 @@ class ActionItemRead(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ActionItemsPage(BaseModel):
+    items: list[ActionItemRead]
+    total: int
+    page: int
+    page_size: int
