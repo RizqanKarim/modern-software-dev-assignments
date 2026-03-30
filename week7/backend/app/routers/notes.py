@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from sqlalchemy import asc, desc, select
 from sqlalchemy.orm import Session
 
@@ -44,13 +44,17 @@ def create_note(payload: NoteCreate, db: Session = Depends(get_db)) -> NoteRead:
 
 
 @router.patch("/{note_id}", response_model=NoteRead)
-def patch_note(note_id: int, payload: NotePatch, db: Session = Depends(get_db)) -> NoteRead:
+def patch_note(
+    note_id: int = Path(..., gt=0, description="Positive integer ID of the note"),
+    payload: NotePatch = None,
+    db: Session = Depends(get_db),
+) -> NoteRead:
     note = db.get(Note, note_id)
     if not note:
         raise HTTPException(status_code=404, detail="Note not found")
-    if payload.title is not None:
+    if payload and payload.title is not None:
         note.title = payload.title
-    if payload.content is not None:
+    if payload and payload.content is not None:
         note.content = payload.content
     db.add(note)
     db.flush()
@@ -59,7 +63,7 @@ def patch_note(note_id: int, payload: NotePatch, db: Session = Depends(get_db)) 
 
 
 @router.get("/{note_id}", response_model=NoteRead)
-def get_note(note_id: int, db: Session = Depends(get_db)) -> NoteRead:
+def get_note(note_id: int = Path(..., gt=0, description="Positive integer ID of the note"), db: Session = Depends(get_db)) -> NoteRead:
     note = db.get(Note, note_id)
     if not note:
         raise HTTPException(status_code=404, detail="Note not found")
